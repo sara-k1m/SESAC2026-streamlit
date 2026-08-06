@@ -24,6 +24,14 @@ df['근속구간'] = pd.cut(
     labels = ['2년 이하', '3~5년', '6~10년', '11년 이상']
 )
 
+# 월급여구간 생성
+# 하위 25%, 25~50%, 50~75%, 상위 25%
+df['월급여구간'] = pd.qcut(
+    df['월급여'],
+    q=4,
+    labels = ['하위 25%', '25~50%', '50~75%', '상위 25%']
+)
+
 # 2. 사이드바
 st.sidebar.header("조회 조건")
 
@@ -74,8 +82,15 @@ age_result = (
     .reset_index(name="퇴직률")
 )
 
+# 월급여구간별 퇴직률
+income_result = (
+    result.groupby("월급여구간", observed=False)["퇴직여부"]
+    .apply(lambda x: (x == "Yes").mean() * 100)
+    .reset_index(name="퇴직률")
+)
+
 # 6. 그래프
-graph_col1, graph_col2 = st.columns(2)
+graph_col1, graph_col2, graph_col3 = st.columns(3)
 
 # 근속구간별
 with graph_col1:
@@ -136,6 +151,37 @@ with graph_col2:
     ax2.legend()
 
     st.pyplot(fig2)
+
+# 월급여구간별
+with graph_col3:
+
+    st.subheader("월급여구간별 퇴직률")
+
+    fig3, ax3 = plt.subplots(figsize=(6,4))
+
+    sns.barplot(
+        data=income_result,
+        x="월급여구간",
+        y="퇴직률",
+        ax=ax3
+    )
+
+    ax3.axhline(
+        retired_rate,
+        color="red",
+        linestyle="--",
+        linewidth=2,
+        label=f"평균 {retired_rate:.1f}%"
+    )
+
+    for container in ax3.containers:
+        ax3.bar_label(container, fmt="%.1f")
+
+    ax3.set_xlabel("월급여 구간")
+    ax3.set_ylabel("퇴직률(%)")
+    ax3.legend()
+
+    st.pyplot(fig3)
 
 # 7. 데이터 보기
 st.subheader("필터링된 데이터")
