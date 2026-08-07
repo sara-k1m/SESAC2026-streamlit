@@ -4,6 +4,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import koreanize_matplotlib
 
+st.set_page_config(
+    page_title="HR 퇴직현황",
+    layout="wide"
+)
+
 st.title("HR 퇴직현황 대시보드")
 
 # 1. 데이터 불러오기
@@ -117,11 +122,11 @@ with graph_col1:
     for container in ax1.containers:
         ax1.bar_label(container, fmt="%.1f")
 
-    ax1.set_xlabel("퇴직률(%)")
-    ax1.set_ylabel("")
+    ax1.set_xlabel("근속구간")
+    ax1.set_ylabel("퇴직률(%)")
     ax1.legend()
 
-    st.pyplot(fig1)
+    st.pyplot(fig1, use_container_width=True)
 
 # 연령대별
 with graph_col2:
@@ -141,6 +146,7 @@ with graph_col2:
         retired_rate,
         color="red",
         linestyle="--",
+        linewidth=2,
         label=f"평균 {retired_rate:.1f}%"
     )
 
